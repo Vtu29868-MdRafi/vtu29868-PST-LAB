@@ -1,0 +1,36 @@
+public class DigitSum {
+
+    public enum Option {
+        EVEN, ODD
+    }
+
+    public static int getDigitSum(int number, Option opt) {
+        number = Math.abs(number);
+        int sum = 0;
+
+        while (number > 0) {
+            int digit = number % 10;
+
+            if (opt == Option.EVEN && digit % 2 == 0) {
+                sum += digit;
+            } else if (opt == Option.ODD && digit % 2 != 0) {
+                sum += digit;
+            }
+
+            number /= 10;
+        }
+
+        return sum;
+    }
+
+    public static void main(String[] args) {
+        int num = 25112006;
+
+        int evenSum = getDigitSum(num, Option.EVEN);
+        int oddSum = getDigitSum(num, Option.ODD);
+
+        System.out.println("Original Number: " + num);
+        System.out.println("Sum of EVEN digits (2 + 4 + 8): " + evenSum); // Output: 14
+        System.out.println("Sum of ODD digits  (3 + 5 + 7): " + oddSum);  // Output: 15
+    }
+}
