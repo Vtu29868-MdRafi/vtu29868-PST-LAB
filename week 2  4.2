@@ -1,0 +1,36 @@
+import java.util.*;
+
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+
+        // Count frequency of each number
+        Map<Integer, Integer> freq = new HashMap<>();
+
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+
+        // Min-heap: least frequent element stays at the top
+        PriorityQueue<Integer> pq = new PriorityQueue<>(
+            (a, b) -> freq.get(a) - freq.get(b)
+        );
+
+        for (int num : freq.keySet()) {
+            pq.offer(num);
+
+            // Keep only k elements
+            if (pq.size() > k) {
+                pq.poll();
+            }
+        }
+
+        // Build result
+        int[] result = new int[k];
+
+        for (int i = 0; i < k; i++) {
+            result[i] = pq.poll();
+        }
+
+        return result;
+    }
+}
