@@ -1,0 +1,35 @@
+import java.util.Arrays;
+
+public class Solution {
+    public static String largestNumber(int[] nums) {
+        if (nums == null || nums.length == 0) return "";
+
+        // Convert integers to string representations
+        String[] strs = new String[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            strs[i] = String.valueOf(nums[i]);
+        }
+
+        // Custom sorting using Java 8 lambda expression
+        Arrays.sort(strs, (a, b) -> (b + a).compareTo(a + b));
+
+        // Edge case: If the highest number is "0", the entire result is "0" (e.g., [0, 0])
+        if (strs[0].equals("0")) {
+            return "0";
+        }
+
+        // Build the final concatenated string
+        StringBuilder sb = new StringBuilder();
+        for (String str : strs) {
+            sb.append(str);
+        }
+
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(largestNumber(new int[]{10, 2}));         // Output: "210"
+        System.out.println(largestNumber(new int[]{3, 30, 34, 5, 9})); // Output: "9534330"
+        System.out.println(largestNumber(new int[]{0, 0}));          // Output: "0"
+    }
+}
