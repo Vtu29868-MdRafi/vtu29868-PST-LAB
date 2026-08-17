@@ -1,0 +1,15 @@
+import java.time.LocalDate;
+
+public class Solution {
+    public static String dayOfTheWeek(int day, int month, int year) {
+        String dayOfWeek = LocalDate.of(year, month, day).getDayOfWeek().name();
+        
+        return dayOfWeek.charAt(0) + dayOfWeek.substring(1).toLowerCase();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(dayOfTheWeek(31, 8, 2019)); 
+        System.out.println(dayOfTheWeek(18, 7, 1999)); 
+        System.out.println(dayOfTheWeek(15, 8, 1993));
+    }
+}
