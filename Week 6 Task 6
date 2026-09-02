@@ -1,0 +1,53 @@
+import java.util.*;
+
+public class Solution {
+
+    public static List<Integer> findAnagrams(String s, String p) {
+        List<Integer> result = new ArrayList<Integer>();
+
+        if (s.length() < p.length()) {
+            return result;
+        }
+
+        int[] countP = new int[26];
+        int[] countWindow = new int[26];
+
+        for (int i = 0; i < p.length(); i++) {
+            countP[p.charAt(i) - 'a']++;
+        }
+
+        for (int i = 0; i < p.length(); i++) {
+            countWindow[s.charAt(i) - 'a']++;
+        }
+
+        if (Arrays.equals(countP, countWindow)) {
+            result.add(0);
+        }
+
+        for (int i = p.length(); i < s.length(); i++) {
+
+            countWindow[s.charAt(i) - 'a']++;
+
+            countWindow[s.charAt(i - p.length()) - 'a']--;
+
+            if (Arrays.equals(countP, countWindow)) {
+                result.add(i - p.length() + 1);
+            }
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        String s = sc.nextLine();
+        String p = sc.nextLine();
+
+        List<Integer> result = findAnagrams(s, p);
+
+        System.out.println(result);
+
+        sc.close();
+    }
+}
