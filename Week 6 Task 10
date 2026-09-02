@@ -1,0 +1,205 @@
+import java.io.*;
+import java.util.*;
+
+public class Solution {
+
+    static int[] manacher(int[] a) {
+        int n = a.length;
+        int[] radius = new int[n];
+
+        int center = 0;
+        int right = 0;
+
+        for (int i = 0; i < n; i++) {
+
+            if (i < right) {
+                int mirror = 2 * center - i;
+                radius[i] = Math.min(right - i, radius[mirror]);
+            } else {
+                radius[i] = 0;
+            }
+
+            while (i - radius[i] - 1 >= 0 &&
+                   i + radius[i] + 1 < n &&
+                   a[i - radius[i] - 1] ==
+                   a[i + radius[i] + 1]) {
+                radius[i]++;
+            }
+
+            if (i + radius[i] > right) {
+                center = i;
+                right = i + radius[i];
+            }
+        }
+
+        return radius;
+    }
+
+    static class RMQ {
+        int[][] table;
+        int[] log;
+
+        RMQ(int[] arr) {
+            int n = arr.length;
+
+            log = new int[n + 1];
+
+            for (int i = 2; i <= n; i++) {
+                log[i] = log[i / 2] + 1;
+            }
+
+            int levels = log[n] + 1;
+            table = new int[levels][n];
+
+            for (int i = 0; i < n; i++) {
+                table[0][i] = arr[i];
+            }
+
+            for (int j = 1; j < levels; j++) {
+                int len = 1 << j;
+                int half = len >> 1;
+
+                for (int i = 0; i + len <= n; i++) {
+                    table[j][i] = Math.max(
+                        table[j - 1][i],
+                        table[j - 1][i + half]
+                    );
+                }
+            }
+        }
+
+        int query(int left, int right) {
+
+            if (left > right) {
+                return 0;
+            }
+
+            int length = right - left + 1;
+            int k = log[length];
+
+            return Math.max(
+                table[k][left],
+                table[k][right - (1 << k) + 1]
+            );
+        }
+    }
+
+    static int[] circularPalindromes(String s) {
+
+        int n = s.length();
+
+        /*
+         * Duplicate the string:
+         *
+         * s = abc
+         * s2 = abcabc
+         */
+        char[] doubled = new char[2 * n];
+
+        for (int i = 0; i < n; i++) {
+            doubled[i] = s.charAt(i);
+            doubled[i + n] = s.charAt(i);
+        }
+
+        /*
+         * Transform:
+         *
+         * abcabc
+         *
+         * becomes
+         *
+         * #a#b#c#a#b#c#
+         *
+         * Length = 4*n + 1
+         */
+        int[] transformed = new int[4 * n + 1];
+
+        for (int i = 0; i < transformed.length; i++) {
+            if ((i & 1) == 0) {
+                transformed[i] = 26; // separator
+            } else {
+                transformed[i] = doubled[i / 2] - 'a';
+            }
+        }
+
+        int[] radius = manacher(transformed);
+
+        RMQ rmq = new RMQ(radius);
+
+        int[] answer = new int[n];
+
+        /*
+         * For every rotation:
+         *
+         * rotation i covers original positions
+         * i ... i+n-1 in the doubled string.
+         *
+         * In transformed string:
+         *
+         * left  = 2*i + 1
+         * right = 2*(i+n-1) + 1
+         */
+        for (int i = 0; i < n; i++) {
+
+            int left = 2 * i + 1;
+            int right = 2 * (i + n - 1) + 1;
+
+            int low = 1;
+            int high = n;
+            int best = 1;
+
+            /*
+             * Binary search the maximum palindrome length.
+             */
+            while (low <= high) {
+
+                int mid = (low + high) / 2;
+
+                /*
+                 * A palindrome of length >= mid must have
+                 * its center in this range.
+                 */
+                int queryLeft = left + mid - 1;
+                int queryRight = right - mid + 1;
+
+                if (queryLeft <= queryRight &&
+                    rmq.query(queryLeft, queryRight) >= mid) {
+
+                    best = mid;
+                    low = mid + 1;
+
+                } else {
+                    high = mid - 1;
+                }
+            }
+
+            answer[i] = best;
+        }
+
+        return answer;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        BufferedReader br = new BufferedReader(
+            new InputStreamReader(System.in)
+        );
+
+        int n = Integer.parseInt(br.readLine().trim());
+        String s = br.readLine().trim();
+
+        int[] result = circularPalindromes(s);
+
+        StringBuilder out = new StringBuilder();
+
+        for (int i = 0; i < n; i++) {
+            out.append(result[i]);
+
+            if (i < n - 1) {
+                out.append('\n');
+            }
+        }
+
+        System.out.print(out.toString());
+    }
+}
